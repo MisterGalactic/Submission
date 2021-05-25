@@ -19,7 +19,7 @@ let gameLoop
 // define the types of towers available (btn-tower-1, btn-tower-2, btn-tower-3)
 const TOWER_TYPES = [1, 2, 3]
 // define the default tower type
-let selectedTowerType
+let selectedTowerType = TOWER_TYPES[1]
 
 $startBtn = $("#start-btn")
 $welcomeBox = $("#welcome-box")
@@ -52,10 +52,18 @@ $("#btn-tower-3").on('click', function() {
 });
 // end update
 
+// let character = {
+//   $elem: $('<div class="enemy">E</div>'),
+//   position: { x: 475, y: 150 }
+// }
+
 // update the text when the mem is clicked
 $(".mem").click(function(){
   if(selectedTowerType != null) {
     $(this).text("Tower "+selectedTowerType);
+    if(gameLoop == null) {
+      $("#enemy-path").append('<div class="enemy" style="position: absolute">E</div>');
+    }
     spawnEnemy();
   } else {
     console.log("select tower type first!");
@@ -66,24 +74,17 @@ $(".mem").click(function(){
 // A wave of enemies generated in the middle of the screen, and walk down the pathway to the end-point
 // Enemies 
 
-const $character = $('#character')  // J: add id="character" into html
-let character = {
-  $elem: $('<div class="soldier"></div>'),  
-  position: { x: 475, y: 150 }
-}
-
 const soldiers = []  // in case we have multiple characters generated
 
 // Everytime this gets invoked, update character position
 const updateMovements = () => {
-//   const { position: { x, y }} = character
-
-  // character.position.y = y + VELOCITY
-//   $character.css('left', newX).css('top', y + VELOCITY)
+  var character = $('.enemy');
+  var newY = character.position().top + VELOCITY;
+  var newX = character.position().left;
+  character.css('left', newX).css('top', newY + 2.5);
 }
 
 const spawnEnemy = () => {
-  character,
   gameLoop = setInterval(updateMovements, LOOP_INTERVAL)
 }
 
