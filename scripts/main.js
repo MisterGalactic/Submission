@@ -13,20 +13,54 @@ const TOWER_RADIUS = 100 // JUST SETTING
 const TOWER_DP = 20
 const INIT_HEALTH = 3
 
-
 // Game Loop = generate enemies each round
 let gameLoop
 
-$startBtn = $("#start-btn")
-$welcomeBox =  $("welcome-box")
-$gameHeader = $("game-header")
+// define the types of towers available (btn-tower-1, btn-tower-2, btn-tower-3)
+const TOWER_TYPES = [1, 2, 3]
+// define the default tower type
+let selectedTowerType
 
+$startBtn = $("#start-btn")
+$welcomeBox = $("#welcome-box")
+$gameHeader = $("#game-header")
+
+
+// hide and show components
 function eventHandler() {
-  if $startBtn.on('click', function(){
-    $welcomeBox.hide()
-    $gameHeader.show()
-  })
+  $welcomeBox.hide();
+  $gameHeader.show();
 }
+
+// register a onclick listen to the start button, so that,
+// when start button was pressed, hide() and show() UI components
+$startBtn.on('click', function(){
+  // entrypoint to do something, which is hide and show
+  eventHandler();
+});
+
+// update selectedTowerType variable
+$("#btn-tower-1").on('click', function() {
+  selectedTowerType = TOWER_TYPES[0];
+});
+
+$("#btn-tower-2").on('click', function() {
+  selectedTowerType = TOWER_TYPES[1];
+});
+
+$("#btn-tower-3").on('click', function() {
+  selectedTowerType = TOWER_TYPES[2];
+});
+// end update
+
+// update the text when the mem is clicked
+$(".mem").click(function(){
+  if(selectedTowerType != null) {
+    $(this).text("Tower "+selectedTowerType);
+  } else {
+    console.log("select tower type first!");
+  }
+});
 
 //in game-
 
