@@ -31,18 +31,9 @@ const towerTypeThree = {
 
 
 // map grid alongside pathway
-const towerRoadGrid = [
-  r = [null,null,null,null,null,null,null,null],  // a 8x2 grid
-  c = [null,null,null,null,null,null,null,null]
-]
+// const towerRoadGrid = [
+//   r = [null,null,null,null,null,null,null,null],  // a 8x2 grid
+//   c = [null,null,null,null,null,null,null,null]
+// ]
+// Let newRow = r, newCol = c
 
-Let newRow = r, newCol = c
-
-function generateTower(r, c) {
-  if r === c === null {
-    towerRoadGrid[newRow], [newCol]
-  } else
-  return // need to revise here
-}
-
-// append Tower to game screen

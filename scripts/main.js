@@ -35,7 +35,6 @@ function eventHandler() {
 // register a onclick listen to the start button, so that,
 // when start button was pressed, hide() and show() UI components
 $startBtn.on('click', function(){
-  // entrypoint to do something, which is hide and show
   eventHandler();
 });
 
@@ -57,23 +56,37 @@ $("#btn-tower-3").on('click', function() {
 $(".mem").click(function(){
   if(selectedTowerType != null) {
     $(this).text("Tower "+selectedTowerType);
+    spawnEnemy();
   } else {
     console.log("select tower type first!");
   }
 });
 
-//in game-
 
-
-
-// Enemies generated in the middle of the screen, and walk down the pathway to the end-point
+// A wave of enemies generated in the middle of the screen, and walk down the pathway to the end-point
 // Enemies 
-const $character = $('#character')
-// let character = {
-//   initPosition: { x, y },   //how to set its init position?
-//   movement: { down: true },
-//   initVelocity: VELOCITY
-// }
+
+const $character = $('#character')  // J: add id="character" into html
+let character = {
+  $elem: $('<div class="soldier"></div>'),  
+  position: { x: 475, y: 150 }
+}
+
+const soldiers = []  // in case we have multiple characters generated
+
+// Everytime this gets invoked, update character position
+const updateMovements = () => {
+//   const { position: { x, y }} = character
+
+  // character.position.y = y + VELOCITY
+//   $character.css('left', newX).css('top', y + VELOCITY)
+}
+
+const spawnEnemy = () => {
+  character,
+  gameLoop = setInterval(updateMovements, LOOP_INTERVAL)
+}
+
 
 
 /* every new round, player has a chance to build a tower. 
@@ -82,16 +95,8 @@ There are X types of towers to choose from.
 Click to choose and build in selected and available areas. 
 In html, show on screen about the changes */
 
-const generateTower = function() {
-  const initDimension = {
-    w: CHARACTER_WIDTH,
-    h: CHARACTER_HEIGHT
-  }
-}
-
-
-  /* Game rules - X enemies will be generated each round and they will walk thru
-  the pathway towards endpoint.
-  - if an enemy reaches within Tower shooting range, Enemy's HP - TowerDP
-  - if an enemy reaches the endpoint, INIT_HEALTH minus 1
-  */
+/* Game rules - X enemies will be generated each round and they will walk thru
+the pathway towards endpoint.
+- if an enemy reaches within Tower shooting range, Enemy's HP - TowerDP
+- if an enemy reaches the endpoint, INIT_HEALTH minus 1
+*/
