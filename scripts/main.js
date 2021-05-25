@@ -17,6 +17,21 @@ const INIT_HEALTH = 3
 // Game Loop = generate enemies each round
 let gameLoop
 
+$startBtn = $("#start-btn")
+$welcomeBox =  $("welcome-box")
+$gameHeader = $("game-header")
+
+function eventHandler() {
+  if $startBtn.on('click', function(){
+    $welcomeBox.hide()
+    $gameHeader.show()
+  })
+}
+
+//in game-
+
+
+
 // Enemies generated in the middle of the screen, and walk down the pathway to the end-point
 // Enemies 
 const $character = $('#character')
