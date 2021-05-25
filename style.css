@@ -1,0 +1,42 @@
+.vert-flex {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height:  700px;
+  border:  1px solid gold;
+}
+.mem {
+  height: 50px;
+  border: 1px dotted blue;
+}
+
+#enemy-lane {
+  flex-grow: 1;
+  border:  1px dotted purple;
+}
+
+
+
+
+
+/* #character {
+  width: 25px;
+  height: 25px;
+  position: absolute;
+  background: red;
+}
+
+#button {
+  background-color: #4CAF50;
+  border: none;
+  width: 250px;
+  float: left;
+  height: 3em;
+  color: white;
+  text-align: center;
+  font-size: 16px;
+  cursor: pointer;
+  text-transform: capitalize;
+  margin: 1px;
+} */
