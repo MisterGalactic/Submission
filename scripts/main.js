@@ -8,6 +8,7 @@ let GAME_HEIGHT
 const PLAYER_HEALTH = 3
 
 const SOLDIER_CD = 1000   // cooldown
+const TOWER_SHOT_CD = 800
 const SOLDIER_WIDTH = 50    
 const SOLDIER_HEIGHT = 50
 const SOLDIER_HP = 100 // TODO Adjust Value
@@ -15,7 +16,7 @@ const VELOCITY = 2.5 // TODO Adjust Value
 
 const TOWER_WIDTH = 70
 const TOWER_HEIGHT = 70
-const TOWER_RADIUS = 100 // TODO Adjust Value
+const TOWER_RADIUS = 80 // TODO Adjust Value
 const TOWER_DP = 20 // TODO Adjust Value
 const TOWER_TYPES = [1, 2, 3] // define the types of towers available (btn-tower-1, btn-tower-2, btn-tower-3)
 
@@ -34,15 +35,38 @@ const $playBtn = $("#play-btn")
 let gameLoop // Game Loop = generate enemies each round
 let selectedTowerType // define the default tower type
 let prevSoldierGenTime // define the previous soldier generation time
+let prevShot
 let soldiersSpawnCounter = 0
 
 const towers = [] // in case we have multiple towers generated
 const soldiers = [] // in case we have multiple soldiers generated
 
+function detectEnemyInRange() {
+  // for every tower we have in towers, loop soldiers to see if they collide
+  // if soldier (x, y) <= tower (x, y) + radius, SOLDIER_HP decrease by 20
+  const currTime = new Date().getTime()
+  const timeDiff = currTime - (TOWER_SHOT_CD || 0)
+  let newHP = SOLDIER_HP
+
+  if (newSoldier.position.y < newTower.y + TOWER_RADIUS) {
+    $(".enemy").background("red")
+    newHP -= TOWER_DP
+    newSoldier.soldierHP.text(newHP.val())
+  }
+    prevShot = currTime
+
+
+  // towers.forEach(function(soldier){
+    //if $".enemy".position.y <=
+  // }
+  //   if collided change soldier background to blue
+  //   else change soldier background to red
+}
+
 function spawnEnemy() {
   if (soldiersSpawnCounter < 1) {
     const currTime = new Date().getTime()
-    const timeDiff = currTime - (prevSoldierGenTime || 0)
+    const timeDiff = currTime - (prevShot || 0)
 
     if (timeDiff >= SOLDIER_CD) {
       const newSoldier = {
@@ -55,6 +79,10 @@ function spawnEnemy() {
           x: (GAME_WIDTH / 2),
           y: (SOLDIER_WIDTH / 2)
         }
+        soldierHP: {
+          null
+        }
+
       }
     
       newSoldier.$elem.appendTo($enemyPath).css({
@@ -94,13 +122,6 @@ function updateEnemyMovement() {
     soldiers.splice(index, 1)
     tbrSoldier.$elem.remove()
   })
-}
-
-function detectEnemyInRange() {
-  // for every tower we have in towers,
-  // loop soldiers to see if they collide
-  //   if collided change soldier background to blue
-  //   else change soldier background to red
 }
 
 function handleUpdate() {
@@ -187,20 +208,4 @@ function init() {
 }
 
 init()
-
-// A wave of enemies generated in the middle of the screen, and walk down the pathway to the end-point
-// Enemies 
-
-
-/* every new round, player has a chance to build a tower. 
-Tower has a shooting range of radius X.
-There are X types of towers to choose from.
-Click to choose and build in selected and available areas. 
-In html, show on screen about the changes */
-
-/* Game rules - X enemies will be generated each round and they will walk thru
-the pathway towards endpoint.
-- if an enemy reaches within Tower shooting range, Enemy's HP - TowerDP
-- if an enemy reaches the endpoint, INIT_HEALTH minus 1
-*/
 
