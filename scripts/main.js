@@ -7,7 +7,7 @@ let GAME_HEIGHT
 
 const PLAYER_HEALTH = 3
 
-const SOLDIER_CD = 1000
+const SOLDIER_CD = 1000   // cooldown
 const SOLDIER_WIDTH = 50    
 const SOLDIER_HEIGHT = 50
 const SOLDIER_HP = 100 // TODO Adjust Value
@@ -122,7 +122,6 @@ function handlePlay() {
 }
 
 function handlePause() {
-  console.log('foo')
   clearInterval(gameLoop)
   gameLoop = null
   $playBtn.attr('disabled', false)
@@ -131,7 +130,6 @@ function handlePause() {
 
 function handleTowerChoice(e) {
   const $elem = $(e.target)
-
   const type = $elem.data("type")
   selectedTowerType = TOWER_TYPES[type]
 
@@ -154,8 +152,6 @@ function handleMemClick(e) {
         y: position.top + (TOWER_HEIGHT / 2),
       }
     }
-
-    const $rangeElem = $()
 
     $elem.html(`
       Tower ${selectedTowerType}
@@ -180,7 +176,6 @@ function init() {
   // register a onclick listen to the start button, so that,
   // when start button was pressed, hide() and show() UI components
   $startBtn.on('click', handleStart)
-
   $playBtn.on('click', handlePlay)
   $pauseBtn.on('click', handlePause)
 
@@ -209,8 +204,3 @@ the pathway towards endpoint.
 - if an enemy reaches the endpoint, INIT_HEALTH minus 1
 */
 
-
-// let character = {
-//   $elem: $('<div class="enemy">E</div>'),
-//   position: { x: 475, y: 150 }
-// }
