@@ -18,11 +18,14 @@
   border-radius: 0;
 }
 
-#game-box #game-control #show-round{
-
+#game-box #health {
+  color: red;
+  display: flex;
+  justify-content: center;
 }
 
-#game-box #game-control #next-round-number{
+#game-box #health > * {
+  margin: 0 5px;
 }
 
 #game-box #game-body {

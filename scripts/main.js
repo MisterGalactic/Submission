@@ -37,6 +37,7 @@ const $showRound = $("#show-round")
 const $nextRoundEnemy = $("#next-round-number")
 const $resetBtns = $(".reset-btn")
 const $winnerBox = $("#winner-box")
+const $healths = $('#health')
 
 // Shared Global Variable
 let gameLoop // Game Loop = generate enemies each round
@@ -64,6 +65,7 @@ function handleReset() {
   
   $showRound.html(`Round: ${round}`)
   $nextRoundEnemy.html(`Enemies: ${ROUND_SETTINGS[round - 1]}`)
+  $healths.find('> *').show()
   $mems.empty()
   $('.enemy').remove()
 
@@ -133,6 +135,7 @@ function updateEnemyMovement() {
     if (newY + SOLDIER_HEIGHT >= GAME_HEIGHT) {
       toBeRemovedSoldiers.push(soldier)
       reducePlayerHealth()
+      $healths.find('> *:visible')[0].hide()
     }
   })
 }
