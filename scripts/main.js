@@ -7,16 +7,16 @@ let GAME_HEIGHT
 
 const PLAYER_HEALTH = 3
 
-const SOLDIER_CD = 1000   // cooldown
-const TOWER_SHOT_CD = 800
-const SOLDIER_WIDTH = 50    
+const SOLDIER_CD = 1000
+const SOLDIER_WIDTH = 50
 const SOLDIER_HEIGHT = 50
 const SOLDIER_HP = 100 // TODO Adjust Value
-const VELOCITY = 2.5 // TODO Adjust Value
+const VELOCITY = 2 // TODO Adjust Value
 
+const TOWER_CD = 800
 const TOWER_WIDTH = 70
 const TOWER_HEIGHT = 70
-const TOWER_RADIUS = 80 // TODO Adjust Value
+const TOWER_RADIUS = 100 // TODO Adjust Value
 const TOWER_DP = 20 // TODO Adjust Value
 const TOWER_TYPES = [1, 2, 3] // define the types of towers available (btn-tower-1, btn-tower-2, btn-tower-3)
 
@@ -35,38 +35,57 @@ const $playBtn = $("#play-btn")
 let gameLoop // Game Loop = generate enemies each round
 let selectedTowerType // define the default tower type
 let prevSoldierGenTime // define the previous soldier generation time
-let prevShot
 let soldiersSpawnCounter = 0
+let toBeRemovedSoldiers = []
+let enemyHP
 
 const towers = [] // in case we have multiple towers generated
 const soldiers = [] // in case we have multiple soldiers generated
 
-function detectEnemyInRange() {
-  // for every tower we have in towers, loop soldiers to see if they collide
-  // if soldier (x, y) <= tower (x, y) + radius, SOLDIER_HP decrease by 20
+
+function continuousAttack(tower, soldier) {
+  const { prevShot, dp } = tower
+  const { healthPoint } = soldier
+
   const currTime = new Date().getTime()
-  const timeDiff = currTime - (TOWER_SHOT_CD || 0)
-  let newHP = SOLDIER_HP
-
-  if (newSoldier.position.y < newTower.y + TOWER_RADIUS) {
-    $(".enemy").background("red")
-    newHP -= TOWER_DP
-    newSoldier.soldierHP.text(newHP.val())
+  const timeDiff = currTime - (prevShot || 0)
+  
+  if (timeDiff >= TOWER_CD) {
+    console.log(soldier.healthPoint)
+    soldier.healthPoint = healthPoint - dp
+    tower.prevShot = currTime
   }
-    prevShot = currTime
-
-
-  // towers.forEach(function(soldier){
-    //if $".enemy".position.y <=
-  // }
-  //   if collided change soldier background to blue
-  //   else change soldier background to red
+  if (soldier.healthPoint === 0) {
+    toBeRemovedSoldiers.push(soldier)
+  }
 }
 
+function isInRange() {
+  towers.forEach(function (tower) {
+    const {
+      centerPoint: tCenterPoint
+    } = tower
+
+    soldiers.forEach(function (soldier) {
+      const {
+        centerPoint: sCenterPoint
+      } = soldier
+
+      let dx = tCenterPoint.x - sCenterPoint.x;
+      let dy = tCenterPoint.y - sCenterPoint.y;
+      let distance = Math.sqrt(dx * dx + dy * dy);
+
+      if (distance < TOWER_RADIUS + (SOLDIER_WIDTH / 2)) {
+        continuousAttack(tower, soldier)
+      }
+    })
+  })
+}
+//////////////////////////////////////////////////////////////////////
 function spawnEnemy() {
-  if (soldiersSpawnCounter < 1) {
+  if (soldiersSpawnCounter < 3) {
     const currTime = new Date().getTime()
-    const timeDiff = currTime - (prevShot || 0)
+    const timeDiff = currTime - (prevSoldierGenTime || 0)
 
     if (timeDiff >= SOLDIER_CD) {
       const newSoldier = {
@@ -78,18 +97,15 @@ function spawnEnemy() {
         centerPoint: {
           x: (GAME_WIDTH / 2),
           y: (SOLDIER_WIDTH / 2)
-        }
-        soldierHP: {
-          null
-        }
-
+        },
+        healthPoint: SOLDIER_HP
       }
-    
+
       newSoldier.$elem.appendTo($enemyPath).css({
         top: `${newSoldier.position.y}px`,
         left: `${newSoldier.position.x}px`
       })
-    
+
       soldiers.push(newSoldier)
       prevSoldierGenTime = currTime
       soldiersSpawnCounter++
@@ -98,11 +114,14 @@ function spawnEnemy() {
 }
 
 function updateEnemyMovement() {
-  const toBeRemovedSoldiers = []
-
   // Everytime this gets invoked, update enemy position
-  soldiers.forEach(function(soldier) {
-    const { $elem, position: { y } } = soldier
+  soldiers.forEach(function (soldier) {
+    const {
+      $elem,
+      position: {
+        y
+      }
+    } = soldier
     const newY = y + VELOCITY
     $elem.css('top', newY)
     soldier.position.y = newY
@@ -113,21 +132,26 @@ function updateEnemyMovement() {
       toBeRemovedSoldiers.push(soldier)
     }
   })
+}
 
-  toBeRemovedSoldiers.forEach(function(tbrSoldier) {
-    const index = soldiers.findIndex(function(soldier) {
+function removeEnemy() {
+  toBeRemovedSoldiers.forEach(function (tbrSoldier) {
+    const index = soldiers.findIndex(function (soldier) {
       return soldier.$elem[0] === tbrSoldier.$elem[0]
     })
 
     soldiers.splice(index, 1)
     tbrSoldier.$elem.remove()
   })
+
+  toBeRemovedSoldiers = []
 }
 
 function handleUpdate() {
   spawnEnemy()
   updateEnemyMovement()
-  detectEnemyInRange()
+  isInRange()
+  removeEnemy()
 }
 
 function handleStart() {
@@ -151,6 +175,7 @@ function handlePause() {
 
 function handleTowerChoice(e) {
   const $elem = $(e.target)
+
   const type = $elem.data("type")
   selectedTowerType = TOWER_TYPES[type]
 
@@ -159,7 +184,7 @@ function handleTowerChoice(e) {
 }
 
 function handleMemClick(e) {
-  if(selectedTowerType) {
+  if (selectedTowerType) {
     const $elem = $(e.target)
     const position = $elem.position()
 
@@ -168,6 +193,7 @@ function handleMemClick(e) {
       type: selectedTowerType,
       radius: null, // TODO: set a different radius based on type
       prevShot: null,
+      dp: TOWER_DP,
       centerPoint: {
         x: position.left + (TOWER_WIDTH / 2),
         y: position.top + (TOWER_HEIGHT / 2),
@@ -175,9 +201,9 @@ function handleMemClick(e) {
     }
 
     $elem.html(`
-      Tower ${selectedTowerType}
-      <div class="range""></div>
-    `)
+    Tower ${selectedTowerType}
+    <div class="range""></div>
+  `)
 
     $elem.find('.range').css({
       width: TOWER_RADIUS * 2,
@@ -197,6 +223,7 @@ function init() {
   // register a onclick listen to the start button, so that,
   // when start button was pressed, hide() and show() UI components
   $startBtn.on('click', handleStart)
+
   $playBtn.on('click', handlePlay)
   $pauseBtn.on('click', handlePause)
 
@@ -208,4 +235,3 @@ function init() {
 }
 
 init()
-

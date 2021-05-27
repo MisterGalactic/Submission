@@ -62,59 +62,8 @@
 
 #game-box #game-body #enemy-path .enemy {
   position: absolute;
-  background-color: blue;
+  background-color: red;
   width: 50px;
   height: 50px;
   border-radius: 50%;
 }
-
-/* #character {
-  position: absolute;
-  width: 25px;  
-  height: 25px;
-  background-image: url();
-} */
-
-/* .vert-flex {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  height:  700px;
-  border:  1px solid gold;
-}
-
-.mem {
-  height: 50px;
-  border: 1px dotted blue;
-}
-
-#enemy-lane {
-  flex: 1 1 auto;
-  border:  1px dotted purple;
-}
-
-#pause-btn {
-  font-size: 20px;
-}
-
-#character {
-  position: absolute
-  width: 25px;  
-  height: 25px;
-  background-image: url();
-}
-
-/*#button {
-  background-color: #4CAF50;
-  border: none;
-  width: 250px;
-  float: left;
-  height: 3em;
-  color: white;
-  text-align: center;
-  font-size: 16px;
-  cursor: pointer;
-  text-transform: capitalize;
-  margin: 1px;
-} */ */
