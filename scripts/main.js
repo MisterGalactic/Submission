@@ -26,38 +26,114 @@ const ROUND_SETTINGS = [3, 3]
 const $startBtn = $("#start-btn")
 const $welcomeBox = $("#welcome-box")
 const $gameBox = $("#game-box")
+const $gameOverBox = $("#game-over-box")
 const $gameBody = $("#game-body")
 const $towerChoices = $('.tower-choice')
 const $mems = $(".mem")
 const $enemyPath = $('#enemy-path')
 const $pauseBtn = $('#pause-btn')
 const $playBtn = $("#play-btn")
-const $showRound = $("show-round")
-const nextRoundEnemy = $("next-round-number")
+const $showRound = $("#show-round")
+const $nextRoundEnemy = $("#next-round-number")
+const $resetBtn = $("#reset-btn")
+const $winnerBox = $("#winner-box")
 
 // Shared Global Variable
 let gameLoop // Game Loop = generate enemies each round
 let selectedTowerType // define the default tower type
 let prevSoldierGenTime // define the previous soldier generation time
-let chanceLeft = PLAYER_HEALTH
-let round = 1
-let soldiersSpawnCounter = 0
-let removedCounter = 0
-let toBeRemovedSoldiers = []
-let enemyHP
+let chanceLeft
+let round
+let soldiersSpawnCounter
+let removedCounter
+let toBeRemovedSoldiers
+let towers // in case we have multiple towers generated
+let soldiers // in case we have multiple soldiers generated
 
-const towers = [] // in case we have multiple towers generated
-const soldiers = [] // in case we have multiple soldiers generated
+function handleReset() {
+  gameLoop = null
+  selectedTowerType = null
+  prevSoldierGenTime = null
+  chanceLeft = PLAYER_HEALTH
+  round = 1
+  soldiersSpawnCounter = 0
+  removedCounter = 0
+  toBeRemovedSoldiers = []
+  towers = []
+  soldier = []
 
+  $showRound.html(`Round: ${round}`)
+  $nextRoundEnemy.html(`Enemies: ${ROUND_SETTINGS[round - 1]}`)
 
+  $mems.empty()
+  $('.enemy').remove()
+}
+
+//////////////////////////////////////////////////////////////////////
+
+function spawnEnemy() {
+  if (soldiersSpawnCounter < ROUND_SETTINGS[round - 1]) {
+    const currTime = new Date().getTime()
+    const timeDiff = currTime - (prevSoldierGenTime || 0)
+
+    if (timeDiff >= SOLDIER_CD) {
+      const newSoldier = {
+        $elem: $('<div class="enemy">Enemy</div>'),
+        position: {
+          x: (GAME_WIDTH / 2) - (SOLDIER_WIDTH / 2),
+          y: 0
+        },
+        centerPoint: {
+          x: (GAME_WIDTH / 2),
+          y: (SOLDIER_WIDTH / 2)
+        },
+        healthPoint: SOLDIER_HP
+      }
+
+      newSoldier.$elem.appendTo($enemyPath).css({
+        top: `${newSoldier.position.y}px`,
+        left: `${newSoldier.position.x}px`
+      })
+
+      soldiers.push(newSoldier)
+      prevSoldierGenTime = currTime
+      soldiersSpawnCounter++
+    }
+  }
+}
 
 function reducePlayerHealth() {
-// if soldier reaches end point , minus player health
-  chanceLeft--
-  if (chanceLeft === 0){
-    console.log(chanceLeft)
-    alert(`Game over`)
+  // if soldier reaches end point , minus player health
+    chanceLeft--
+    if (chanceLeft === 0){
+      handlePause()
+      // TODO hide game-box and show game-over-box
+      $gameBox.hide()
+      $gameOverBox.show()
+      alert(`Game over`)
+    }
   }
+
+function updateEnemyMovement() {
+  // Everytime this gets invoked, update enemy position
+  soldiers.forEach(function (soldier) {
+    const {
+      $elem,
+      position: {
+        y
+      }
+    } = soldier
+    const newY = y + VELOCITY
+    $elem.css('top', newY)
+    soldier.position.y = newY
+    soldier.centerPoint.y = newY + (SOLDIER_WIDTH / 2)
+
+    // console.log(newY + SOLDIER_HEIGHT, GAME_HEIGHT)
+    if (newY + SOLDIER_HEIGHT >= GAME_HEIGHT) {
+      toBeRemovedSoldiers.push(soldier)
+      reducePlayerHealth()
+    }
+  })
 }
 
 function continuousAttack(tower, soldier) {
@@ -98,59 +174,6 @@ function isInRange() {
     })
   })
 }
-//////////////////////////////////////////////////////////////////////
-function spawnEnemy() {
-  if (soldiersSpawnCounter < ROUND_SETTINGS[round - 1]) {
-    const currTime = new Date().getTime()
-    const timeDiff = currTime - (prevSoldierGenTime || 0)
-
-    if (timeDiff >= SOLDIER_CD) {
-      const newSoldier = {
-        $elem: $('<div class="enemy">Enemy</div>'),
-        position: {
-          x: (GAME_WIDTH / 2) - (SOLDIER_WIDTH / 2),
-          y: 0
-        },
-        centerPoint: {
-          x: (GAME_WIDTH / 2),
-          y: (SOLDIER_WIDTH / 2)
-        },
-        healthPoint: SOLDIER_HP
-      }
-
-      newSoldier.$elem.appendTo($enemyPath).css({
-        top: `${newSoldier.position.y}px`,
-        left: `${newSoldier.position.x}px`
-      })
-
-      soldiers.push(newSoldier)
-      prevSoldierGenTime = currTime
-      soldiersSpawnCounter++
-    }
-  }
-}
-
-function updateEnemyMovement() {
-  // Everytime this gets invoked, update enemy position
-  soldiers.forEach(function (soldier) {
-    const {
-      $elem,
-      position: {
-        y
-      }
-    } = soldier
-    const newY = y + VELOCITY
-    $elem.css('top', newY)
-    soldier.position.y = newY
-    soldier.centerPoint.y = newY + (SOLDIER_WIDTH / 2)
-
-    // console.log(newY + SOLDIER_HEIGHT, GAME_HEIGHT)
-    if (newY + SOLDIER_HEIGHT >= GAME_HEIGHT) {
-      toBeRemovedSoldiers.push(soldier)
-      reducePlayerHealth()
-    }
-  })
-}
 
 function removeEnemy() {
   toBeRemovedSoldiers.forEach(function (tbrSoldier, i) {
@@ -173,12 +196,19 @@ function checkRoundCompleted() {
     soldiersSpawnCounter = 0
     removedCounter = 0
     round++
-    $showRound.html.(round)
     handlePause()
-  }
 
+    if (round <= ROUND_SETTINGS.length) {
+      $showRound.html(`Round: ${round}`)
+      $nextRoundEnemy.html(`Enemies: ${ROUND_SETTINGS[round - 1]}`)
+    }
+  }
+  
   if (round > ROUND_SETTINGS.length) {
     handlePause()
+    // TODO hide game-box and show congratulate-box
+    $gameBox.hide()
+    $winnerBox.show()
     alert('You have completed all levels')
   }
 }
@@ -254,6 +284,8 @@ function handleMemClick(e) {
 }
 
 function init() {
+  handleReset()
+
   GAME_WIDTH = $gameBody.width()
   GAME_HEIGHT = $gameBody.height()
 
@@ -269,6 +301,9 @@ function init() {
 
   // update the text when the mem is clicked
   $mems.on('click', handleMemClick)
+
+  //reset the whole game to initial values
+  $resetBtn.on('click', handleReset)
 }
 
 init()
