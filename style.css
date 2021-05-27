@@ -75,3 +75,18 @@
   border-radius: 50%;
 }
 
+#game-over-box {
+  height: 700px;
+  width: 1000px;
+  position: relative;
+  margin: 0 auto;
+  box-sizing: content-box;
+}
+
+#game-over-box .reset-btn {
+  font-size: 20px;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}

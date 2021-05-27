@@ -35,7 +35,7 @@ const $pauseBtn = $('#pause-btn')
 const $playBtn = $("#play-btn")
 const $showRound = $("#show-round")
 const $nextRoundEnemy = $("#next-round-number")
-const $resetBtn = $("#reset-btn")
+const $resetBtns = $(".reset-btn")
 const $winnerBox = $("#winner-box")
 
 // Shared Global Variable
@@ -44,7 +44,7 @@ let selectedTowerType // define the default tower type
 let prevSoldierGenTime // define the previous soldier generation time
 let chanceLeft
 let round
-let soldiersSpawnCounter
+let soldiersSpawnCounter = 0
 let removedCounter
 let toBeRemovedSoldiers
 let towers // in case we have multiple towers generated
@@ -60,13 +60,16 @@ function handleReset() {
   removedCounter = 0
   toBeRemovedSoldiers = []
   towers = []
-  soldier = []
-
+  soldiers = []
+  
   $showRound.html(`Round: ${round}`)
   $nextRoundEnemy.html(`Enemies: ${ROUND_SETTINGS[round - 1]}`)
-
   $mems.empty()
   $('.enemy').remove()
+
+  $winnerBox.hide()
+  $gameOverBox.hide()
+  $gameBox.show()
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -107,10 +110,8 @@ function reducePlayerHealth() {
     chanceLeft--
     if (chanceLeft === 0){
       handlePause()
-      // TODO hide game-box and show game-over-box
       $gameBox.hide()
       $gameOverBox.show()
-      alert(`Game over`)
     }
   }
 
@@ -204,12 +205,10 @@ function checkRoundCompleted() {
     }
   }
   
-  if (round > ROUND_SETTINGS.length) {
+  if (round > ROUND_SETTINGS.length) { //win
     handlePause()
-    // TODO hide game-box and show congratulate-box
     $gameBox.hide()
     $winnerBox.show()
-    alert('You have completed all levels')
   }
 }
 
@@ -303,7 +302,7 @@ function init() {
   $mems.on('click', handleMemClick)
 
   //reset the whole game to initial values
-  $resetBtn.on('click', handleReset)
+  $resetBtns.on('click', handleReset)
 }
 
 init()
