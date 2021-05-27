@@ -20,6 +20,8 @@ const TOWER_RADIUS = 100 // TODO Adjust Value
 const TOWER_DP = 20 // TODO Adjust Value
 const TOWER_TYPES = [1, 2, 3] // define the types of towers available (btn-tower-1, btn-tower-2, btn-tower-3)
 
+const ROUND_SETTINGS = [3, 3]
+
 // Elements
 const $startBtn = $("#start-btn")
 const $welcomeBox = $("#welcome-box")
@@ -30,18 +32,24 @@ const $mems = $(".mem")
 const $enemyPath = $('#enemy-path')
 const $pauseBtn = $('#pause-btn')
 const $playBtn = $("#play-btn")
+const $showRound = $("show-round")
+const nextRoundEnemy = $("next-round-number")
 
 // Shared Global Variable
 let gameLoop // Game Loop = generate enemies each round
 let selectedTowerType // define the default tower type
 let prevSoldierGenTime // define the previous soldier generation time
 let chanceLeft = PLAYER_HEALTH
+let round = 1
 let soldiersSpawnCounter = 0
+let removedCounter = 0
 let toBeRemovedSoldiers = []
 let enemyHP
 
 const towers = [] // in case we have multiple towers generated
 const soldiers = [] // in case we have multiple soldiers generated
+
+
 
 function reducePlayerHealth() {
 // if soldier reaches end point , minus player health
@@ -92,7 +100,7 @@ function isInRange() {
 }
 //////////////////////////////////////////////////////////////////////
 function spawnEnemy() {
-  if (soldiersSpawnCounter < 3) {
+  if (soldiersSpawnCounter < ROUND_SETTINGS[round - 1]) {
     const currTime = new Date().getTime()
     const timeDiff = currTime - (prevSoldierGenTime || 0)
 
@@ -153,10 +161,26 @@ function removeEnemy() {
     if (index >= 0) {
       tbrSoldier.$elem.remove()
       soldiers.splice(index, 1)
+      removedCounter++
     }
   })
 
   toBeRemovedSoldiers = []
+}
+
+function checkRoundCompleted() {
+  if (removedCounter === ROUND_SETTINGS[round - 1]) {
+    soldiersSpawnCounter = 0
+    removedCounter = 0
+    round++
+    $showRound.html.(round)
+    handlePause()
+  }
+
+  if (round > ROUND_SETTINGS.length) {
+    handlePause()
+    alert('You have completed all levels')
+  }
 }
 
 function handleUpdate() {
@@ -164,6 +188,7 @@ function handleUpdate() {
   updateEnemyMovement()
   isInRange()
   removeEnemy()
+  checkRoundCompleted()
 }
 
 function handleStart() {

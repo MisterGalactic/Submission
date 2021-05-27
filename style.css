@@ -18,6 +18,13 @@
   border-radius: 0;
 }
 
+#game-box #game-control #show-round{
+
+}
+
+#game-box #game-control #next-round-number{
+}
+
 #game-box #game-body {
   height: calc(100% - 38px);
   border: 1px solid purple;
@@ -67,3 +74,4 @@
   height: 50px;
   border-radius: 50%;
 }
+
