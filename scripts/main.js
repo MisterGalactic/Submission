@@ -35,6 +35,7 @@ const $playBtn = $("#play-btn")
 let gameLoop // Game Loop = generate enemies each round
 let selectedTowerType // define the default tower type
 let prevSoldierGenTime // define the previous soldier generation time
+let chanceLeft = PLAYER_HEALTH
 let soldiersSpawnCounter = 0
 let toBeRemovedSoldiers = []
 let enemyHP
@@ -42,6 +43,14 @@ let enemyHP
 const towers = [] // in case we have multiple towers generated
 const soldiers = [] // in case we have multiple soldiers generated
 
+function reducePlayerHealth() {
+// if soldier reaches end point , minus player health
+  chanceLeft--
+  if (chanceLeft === 0){
+    console.log(chanceLeft)
+    alert(`Game over`)
+  }
+}
 
 function continuousAttack(tower, soldier) {
   const { prevShot, dp } = tower
@@ -130,18 +139,21 @@ function updateEnemyMovement() {
     // console.log(newY + SOLDIER_HEIGHT, GAME_HEIGHT)
     if (newY + SOLDIER_HEIGHT >= GAME_HEIGHT) {
       toBeRemovedSoldiers.push(soldier)
+      reducePlayerHealth()
     }
   })
 }
 
 function removeEnemy() {
-  toBeRemovedSoldiers.forEach(function (tbrSoldier) {
+  toBeRemovedSoldiers.forEach(function (tbrSoldier, i) {
     const index = soldiers.findIndex(function (soldier) {
       return soldier.$elem[0] === tbrSoldier.$elem[0]
     })
 
-    soldiers.splice(index, 1)
-    tbrSoldier.$elem.remove()
+    if (index >= 0) {
+      tbrSoldier.$elem.remove()
+      soldiers.splice(index, 1)
+    }
   })
 
   toBeRemovedSoldiers = []
