@@ -1,3 +1,5 @@
+// this is an unused file - for future constructor purpose
+
 function Character({ initVelocity, initPos, initBackground, movementKeys }) {
   const character = {
     $elem: null,
