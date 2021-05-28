@@ -37,3 +37,4 @@ const towerTypeThree = {
 // ]
 // Let newRow = r, newCol = c
 
+//finish
