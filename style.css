@@ -14,6 +14,11 @@
   transform: translate(-50%, -50%);
 }
 
+#game-box #game-control {
+  display: flex;
+  justify-content: space-between;
+}
+
 #game-box #game-control button {
   border-radius: 0;
 }
@@ -57,6 +62,13 @@
   background-color: orange;
   height: 70px;
   position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#game-box #game-body .tower-path .mem * {
+  pointer-events: none;
 }
 
 #game-box #game-body .tower-path .mem .range {
@@ -76,6 +88,9 @@
   width: 50px;
   height: 50px;
   border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 #game-over-box {
@@ -86,10 +101,11 @@
   box-sizing: content-box;
 }
 
-#game-over-box .reset-btn {
+.reset-btn {
   font-size: 20px;
   position: absolute;
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
 }
+

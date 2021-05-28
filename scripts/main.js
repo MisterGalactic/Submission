@@ -6,21 +6,24 @@ let GAME_WIDTH
 let GAME_HEIGHT
 
 const PLAYER_HEALTH = 3
+const PLAYER_MONEY = 100
 
 const SOLDIER_CD = 1000
 const SOLDIER_WIDTH = 50
 const SOLDIER_HEIGHT = 50
-const SOLDIER_HP = 100 // TODO Adjust Value
-const VELOCITY = 2 // TODO Adjust Value
+const SOLDIER_HP = 100
 
-const TOWER_CD = 800
+
 const TOWER_WIDTH = 70
 const TOWER_HEIGHT = 70
-const TOWER_RADIUS = 100 // TODO Adjust Value
-const TOWER_DP = 20 // TODO Adjust Value
 const TOWER_TYPES = [1, 2, 3] // define the types of towers available (btn-tower-1, btn-tower-2, btn-tower-3)
+const TOWERS_CD = [500, 700, 1000 ]
+const TOWERS_DP = [10, 25, 50]
+const TOWERS_RADIUS = [100, 125, 150]
+const TOWERS_MONEY = [20, 50, 100]
 
-const ROUND_SETTINGS = [3, 3]
+const BASE_VELOCITY = 1.8
+const ROUND_SETTINGS = [3, 5, 7, 10]
 
 // Elements
 const $startBtn = $("#start-btn")
@@ -38,12 +41,14 @@ const $nextRoundEnemy = $("#next-round-number")
 const $resetBtns = $(".reset-btn")
 const $winnerBox = $("#winner-box")
 const $healths = $('#health')
+const $moneyText = $('#money span')
 
 // Shared Global Variable
 let gameLoop // Game Loop = generate enemies each round
 let selectedTowerType // define the default tower type
 let prevSoldierGenTime // define the previous soldier generation time
 let chanceLeft
+let money
 let round
 let soldiersSpawnCounter = 0
 let removedCounter
@@ -56,6 +61,7 @@ function handleReset() {
   selectedTowerType = null
   prevSoldierGenTime = null
   chanceLeft = PLAYER_HEALTH
+  money = PLAYER_MONEY
   round = 1
   soldiersSpawnCounter = 0
   removedCounter = 0
@@ -66,6 +72,7 @@ function handleReset() {
   $showRound.html(`Round: ${round}`)
   $nextRoundEnemy.html(`Enemies: ${ROUND_SETTINGS[round - 1]}`)
   $healths.find('> *').show()
+  $moneyText.text(money)
   $mems.empty()
   $('.enemy').remove()
 
@@ -83,7 +90,7 @@ function spawnEnemy() {
 
     if (timeDiff >= SOLDIER_CD) {
       const newSoldier = {
-        $elem: $('<div class="enemy">Enemy</div>'),
+        $elem: $('<div class="enemy">100</div>'),
         position: {
           x: (GAME_WIDTH / 2) - (SOLDIER_WIDTH / 2),
           y: 0
@@ -126,7 +133,7 @@ function updateEnemyMovement() {
         y
       }
     } = soldier
-    const newY = y + VELOCITY
+    const newY = y + (BASE_VELOCITY * (round * 1.1))
     $elem.css('top', newY)
     soldier.position.y = newY
     soldier.centerPoint.y = newY + (SOLDIER_WIDTH / 2)
@@ -135,24 +142,26 @@ function updateEnemyMovement() {
     if (newY + SOLDIER_HEIGHT >= GAME_HEIGHT) {
       toBeRemovedSoldiers.push(soldier)
       reducePlayerHealth()
-      $healths.find('> *:visible')[0].hide()
+      $healths.find('> *:visible').eq(0).hide()
     }
   })
 }
 
 function continuousAttack(tower, soldier) {
-  const { prevShot, dp } = tower
+  const { prevShot, dp, cd } = tower
   const { healthPoint } = soldier
 
   const currTime = new Date().getTime()
   const timeDiff = currTime - (prevShot || 0)
   
-  if (timeDiff >= TOWER_CD) {
+  if (timeDiff >= cd) {
     console.log(soldier.healthPoint)
     soldier.healthPoint = healthPoint - dp
+    soldier.$elem.text(soldier.healthPoint)
     tower.prevShot = currTime
   }
-  if (soldier.healthPoint === 0) {
+  if (soldier.healthPoint <= 0) {
+    changeMoney(20)
     toBeRemovedSoldiers.push(soldier)
   }
 }
@@ -163,19 +172,20 @@ function isInRange() {
       centerPoint: tCenterPoint
     } = tower
 
-    soldiers.forEach(function (soldier) {
+    for (let i = 0; i < soldiers.length; i++) {
       const {
         centerPoint: sCenterPoint
-      } = soldier
-
+      } = soldiers[i]
+  
       let dx = tCenterPoint.x - sCenterPoint.x;
       let dy = tCenterPoint.y - sCenterPoint.y;
       let distance = Math.sqrt(dx * dx + dy * dy);
-
-      if (distance < TOWER_RADIUS + (SOLDIER_WIDTH / 2)) {
-        continuousAttack(tower, soldier)
+  
+      if (distance < tower.radius + (SOLDIER_WIDTH / 2)) {
+        continuousAttack(tower, soldiers[i])
+        break
       }
-    })
+    }
   })
 }
 
@@ -244,7 +254,6 @@ function handlePause() {
 
 function handleTowerChoice(e) {
   const $elem = $(e.target)
-
   const type = $elem.data("type")
   selectedTowerType = TOWER_TYPES[type]
 
@@ -252,17 +261,59 @@ function handleTowerChoice(e) {
   $elem.removeClass('btn-secondary').addClass('btn-success')
 }
 
+function changeMoney(amount) {
+  money += amount
+  $moneyText.text(money)
+}
+
+function canBuild() {
+  if ( money < TOWERS_MONEY[selectedTowerType - 1] ){
+    alert("Not enough money")
+    return false
+  } else {
+    return true
+  }
+}
+
 function handleMemClick(e) {
-  if (selectedTowerType) {
+  const $selectedMem = $(e.target)
+  const $memTowerType = $selectedMem.find('span')
+  const existingTowerType = $memTowerType[0] ? Number($memTowerType.text()) : null
+
+  if (!selectedTowerType) {
+    alert("select tower type first!")
+  } else if (existingTowerType !== null && selectedTowerType > existingTowerType && canBuild()) {
+    existingTower = towers.find((tower) => {
+      return $selectedMem[0] === tower.$elem[0]
+    })
+    
+    changeMoney(-TOWERS_MONEY[selectedTowerType - 1])
+    
+    existingTower = {
+      ...existingTower,
+      radius: TOWERS_RADIUS[selectedTowerType - 1],
+      dp: TOWERS_DP[selectedTowerType - 1],
+      cd: TOWERS_CD[selectedTowerType - 1]
+    }
+
+    $memTowerType.text(selectedTowerType)
+    existingTower.$elem.find('.range').css({
+      width: TOWERS_RADIUS[selectedTowerType - 1] * 2,
+      height: TOWERS_RADIUS[selectedTowerType - 1] * 2
+    })
+  } else if (existingTowerType === null && canBuild()) {
     const $elem = $(e.target)
     const position = $elem.position()
+
+    changeMoney(-TOWERS_MONEY[selectedTowerType - 1])
 
     const newTower = {
       $elem,
       type: selectedTowerType,
-      radius: null, // TODO: set a different radius based on type
+      radius: TOWERS_RADIUS[selectedTowerType - 1],
+      dp: TOWERS_DP[selectedTowerType - 1],
+      cd: TOWERS_CD[selectedTowerType - 1],
       prevShot: null,
-      dp: TOWER_DP,
       centerPoint: {
         x: position.left + (TOWER_WIDTH / 2),
         y: position.top + (TOWER_HEIGHT / 2),
@@ -270,19 +321,17 @@ function handleMemClick(e) {
     }
 
     $elem.html(`
-    Tower ${selectedTowerType}
-    <div class="range""></div>
-  `)
+      <div>Tower <span>${selectedTowerType}</span></div>
+      <div class="range""></div>
+    `)
 
     $elem.find('.range').css({
-      width: TOWER_RADIUS * 2,
-      height: TOWER_RADIUS * 2
+      width: TOWERS_RADIUS[selectedTowerType - 1] * 2,
+      height: TOWERS_RADIUS[selectedTowerType - 1] * 2
     })
 
     towers.push(newTower)
-  } else {
-    alert("select tower type first!")
-  }
+  } 
 }
 
 function init() {

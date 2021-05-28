@@ -34,24 +34,24 @@
   </div>
 
   <div id="game-box" class="container-fluid">
-    <div id="game-control" class="row">
-      <div class="col">
-        <div class="btn-group">
-          <button id="btn-tower-1" class="tower-choice btn btn-secondary" data-type="0">Tower 1</button>
-          <button id="btn-tower-2" class="tower-choice btn btn-secondary" data-type="1">Tower 2</button>
-          <button id="btn-tower-3" class="tower-choice btn btn-secondary" data-type="2">Tower 3</button>
-          <button id="play-btn" class="btn btn-primary" type="button"> > </button>
-          <button id="pause-btn" class="btn btn-danger" type="button" disabled> II </button>
-        </div>
+    <div id="game-control">
+      <div class="btn-group">
+        <button id="btn-tower-1" class="tower-choice btn btn-secondary" data-type="0">Tower 1</button>
+        <button id="btn-tower-2" class="tower-choice btn btn-secondary" data-type="1">Tower 2</button>
+        <button id="btn-tower-3" class="tower-choice btn btn-secondary" data-type="2">Tower 3</button>
+        <button id="play-btn" class="btn btn-primary" type="button"> > </button>
+        <button id="pause-btn" class="btn btn-danger" type="button" disabled> II </button>
       </div>
       
-      <div id="health" class="col">
-        <span class="fas fa-2x"></span>
+      <div id="health">
+        <span class="fas fa-heart fa-2x"></span>
         <span class="fas fa-heart fa-2x"></span>
         <span class="fas fa-heart fa-2x"></span>
       </div>
 
-      <div class="col text-right">
+      <div id="money">$<span></span></div>
+
+      <div class="text-right">
         <span id="show-round"></span> | <span id="next-round-number"></span>
       </div>
     </div>
